@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package omega.v1;
+
+option go_package = "github.com/nishantapatil3/omega-apis/sdk/go/omega/v1;omegav1";
+
+service OmegaService {
+  rpc SubmitJob(SubmitJobRequest) returns (SubmitJobResponse);
+  rpc GetJobStatus(GetJobStatusRequest) returns (GetJobStatusResponse);
+}
+
+message SubmitJobRequest {
+  string circuit_name = 1;
+  int32 shots = 2;
+}
+
+message SubmitJobResponse {
+  string job_id = 1;
+}
+
+message GetJobStatusRequest {
+  string job_id = 1;
+}
+
+message GetJobStatusResponse {
+  string job_id = 1;
+  JobStatus status = 2;
+}
+
+enum JobStatus {
+  JOB_STATUS_UNSPECIFIED = 0;
+  JOB_STATUS_PENDING = 1;
+  JOB_STATUS_RUNNING = 2;
+  JOB_STATUS_COMPLETED = 3;
+  JOB_STATUS_FAILED = 4;
+}
