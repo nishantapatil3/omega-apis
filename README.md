@@ -74,44 +74,19 @@ invisible to it.
 
 ## Installing the SDKs
 
-The repo is **currently private**; it's expected to go public later. Install
-commands differ slightly until then.
-
-### While the repo is private
-
-**Go** — needs git to authenticate and `GOPRIVATE` so the module isn't routed
-through the public module proxy/sumdb (which can't see a private repo):
+The repo ([github.com/nishantapatil3/omega-apis](https://github.com/nishantapatil3/omega-apis))
+is public, so both SDKs install directly with no auth setup:
 
 ```sh
-export GOPRIVATE=github.com/nishantapatil3/*
-# pick one auth method:
-git config --global url."ssh://git@github.com/".insteadOf "https://github.com/"
-# or: git config --global url."https://<PAT>@github.com/".insteadOf "https://github.com/"
+# Go
+go get github.com/nishantapatil3/omega-apis/sdk/go@latest
 
-go get github.com/nishantapatil3/omega-apis/sdk/go@v0.0.1
+# Python
+pip install "git+https://github.com/nishantapatil3/omega-apis.git#subdirectory=sdk/python"
 ```
 
-`sdk/go/go.sum` is committed, which `go get` needs to verify checksums once
-`GOPRIVATE` bypasses the public sumdb.
-
-**Python** — `pip install git+https://...` needs credentials for a private
-repo; use SSH or a token-embedded URL:
-
-```sh
-pip install "git+ssh://git@github.com/nishantapatil3/omega-apis.git@v0.0.1#subdirectory=sdk/python"
-# or: pip install "git+https://<PAT>@github.com/nishantapatil3/omega-apis.git@v0.0.1#subdirectory=sdk/python"
-```
-
-### Once the repo is public
-
-Drop the `GOPRIVATE`/git-rewrite and SSH/token requirements — both commands
-work as-is:
-
-```sh
-go get github.com/nishantapatil3/omega-apis/sdk/go@v0.0.1
-
-pip install "git+https://github.com/nishantapatil3/omega-apis.git@v0.0.1#subdirectory=sdk/python"
-```
-
-In both cases, swap `@v0.0.1` for any tagged release (or drop the version to
-get the default branch).
+Pin to a specific release instead of `@latest`/the default branch once tags
+exist (e.g. `@v0.0.1` for Go, `.git@v0.0.1#subdirectory=sdk/python` for pip) —
+see [Versioning](#versioning) for how those tags are cut. Until the first
+`proto-release.yml` run creates one, `@latest` resolves to a pseudo-version
+off the current `main` commit, which also works fine.
