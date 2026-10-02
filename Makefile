@@ -3,14 +3,27 @@ PY_OUT := sdk/python
 GOBIN := $(shell go env GOPATH)/bin
 PROTO_FILES := $(shell find $(PROTO_DIR) -name '*.proto')
 
+VENV := .venv
+VENV_PYTHON := $(VENV)/bin/python3
+VENV_STAMP := $(VENV)/.deps-installed
+
 .PHONY: all
 all: generate
 
+$(VENV_PYTHON):
+	python3 -m venv $(VENV)
+
+$(VENV_STAMP): $(VENV_PYTHON)
+	$(VENV_PYTHON) -m pip install --upgrade pip grpcio-tools mypy-protobuf
+	touch $(VENV_STAMP)
+
+.PHONY: venv
+venv: $(VENV_STAMP)
+
 .PHONY: tools
-tools:
+tools: $(VENV_STAMP)
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-	pip install grpcio-tools mypy-protobuf
 
 .PHONY: lint
 lint:
@@ -28,9 +41,9 @@ generate-go:
 	PATH="$(GOBIN):$$PATH" buf generate
 
 .PHONY: generate-python
-generate-python:
+generate-python: $(VENV_STAMP)
 	mkdir -p $(PY_OUT)
-	python3 -m grpc_tools.protoc \
+	$(VENV_PYTHON) -m grpc_tools.protoc \
 		-I $(PROTO_DIR) \
 		--python_out=$(PY_OUT) \
 		--grpc_python_out=$(PY_OUT) \
@@ -50,3 +63,7 @@ check: lint breaking generate
 clean:
 	rm -rf sdk/go/omega sdk/python/omega
 	find sdk/python -name '__pycache__' -type d -exec rm -rf {} +
+
+.PHONY: distclean
+distclean: clean
+	rm -rf $(VENV)
